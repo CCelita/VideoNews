@@ -2,6 +2,8 @@ package com.fuicuiedu.idedemo.videoplayer.part;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -23,6 +25,7 @@ import io.vov.vitamio.Vitamio;
  */
 
 public class SimpleVideoView extends FrameLayout {
+    private static final  int PROGRESS_MAX = 1000;//进度条控制（长短，进度）
 
     private String videoPath;//视频播放的url\
     private Boolean isPlaying;//是否正在播放
@@ -49,6 +52,21 @@ public class SimpleVideoView extends FrameLayout {
         init();
     }
 
+    //进度条更新操作
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (isPlaying){
+                //每200毫秒更新一次播放进度
+                int progress = (int) (mediaPlayer.getCurrentPosition() * PROGRESS_MAX / mediaPlayer.getDuration());
+                progressBar.setProgress(progress);
+                handler.sendEmptyMessageDelayed(0,200);
+            }
+        }
+    };
+
+    // TODO https://github.com/wxcican/VideoNews.git
     //视图初始化，只在构造方法中调用一次
     private void init() {
         //Vitamio的初始化
@@ -77,6 +95,38 @@ public class SimpleVideoView extends FrameLayout {
                 }
             }
         });
+        //进度条
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setMax(PROGRESS_MAX);
+
+        //全屏播放按钮
+        ImageButton btnFullScreen = (ImageButton) findViewById(R.id.btnFullScreen);
+        btnFullScreen.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO 全屏未实现
+                Toast.makeText(getContext(),"全屏未实现",Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    //点击开始时调用的方法，更新UI
+    private void startMediaPlater() {
+        ivPreview.setVisibility(View.INVISIBLE);//预览图隐藏
+        btnToggle.setImageResource(R.drawable.ic_pause);
+        mediaPlayer.start();//开始播放
+        isPlaying = true;
+        handler.sendEmptyMessage(0);
+    }
+
+    //点击暂停时调用的方法，更新UI
+    private void pauseMediaPlayer() {
+        if (mediaPlayer.isPlaying()){
+            mediaPlayer.pause();
+        }
+        isPlaying = false;
+        btnToggle.setImageResource(R.drawable.ic_play_arrow);
+        handler.sendEmptyMessage(0);
     }
 
     // 初始化SurfaceView
@@ -103,4 +153,5 @@ public class SimpleVideoView extends FrameLayout {
     public void onPause(){
 
     }
+
 }
