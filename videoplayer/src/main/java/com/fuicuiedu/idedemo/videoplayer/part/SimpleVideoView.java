@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,6 +17,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.fuicuiedu.idedemo.videoplayer.R;
+
+import java.io.IOException;
 
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.Vitamio;
@@ -25,7 +28,7 @@ import io.vov.vitamio.Vitamio;
  */
 
 public class SimpleVideoView extends FrameLayout {
-    private static final  int PROGRESS_MAX = 1000;//进度条控制（长短，进度）
+    private static final int PROGRESS_MAX = 1000;//进度条控制（长短，进度）
 
     private String videoPath;//视频播放的url\
     private Boolean isPlaying;//是否正在播放
@@ -40,11 +43,11 @@ public class SimpleVideoView extends FrameLayout {
     private ProgressBar progressBar;//进度条
 
     public SimpleVideoView(Context context) {
-        this(context,null);
+        this(context, null);
     }
 
     public SimpleVideoView(Context context, AttributeSet attrs) {
-        this(context,attrs,0);
+        this(context, attrs, 0);
     }
 
     public SimpleVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -53,15 +56,16 @@ public class SimpleVideoView extends FrameLayout {
     }
 
     //进度条更新操作
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (isPlaying){
+            if (isPlaying) {
                 //每200毫秒更新一次播放进度
-                int progress = (int) (mediaPlayer.getCurrentPosition() * PROGRESS_MAX / mediaPlayer.getDuration());
+                int progress = (int) (mediaPlayer.getCurrentPosition() *
+                        PROGRESS_MAX / mediaPlayer.getDuration());
                 progressBar.setProgress(progress);
-                handler.sendEmptyMessageDelayed(0,200);
+                handler.sendEmptyMessageDelayed(0, 200);
             }
         }
     };
@@ -72,7 +76,7 @@ public class SimpleVideoView extends FrameLayout {
         //Vitamio的初始化
         Vitamio.isInitialized(getContext());
         //inflate初始当前视图内容
-        LayoutInflater.from(getContext()).inflate(R.layout.view_simple_video_player,this,true);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_simple_video_player, this, true);
         initSurfaceView(); // 初始化SurfaceView
         initControllerViews(); // 初始化视频播放控制视图
     }
@@ -86,12 +90,12 @@ public class SimpleVideoView extends FrameLayout {
         btnToggle.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mediaPlayer.isPlaying()){
+                if (mediaPlayer.isPlaying()) {
                     pauseMediaPlayer();
-                } else if (isPrepared){
+                } else if (isPrepared) {
                     startMediaPlater();
-                }else {
-                    Toast.makeText(getContext(),"Can't player now", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "Can't player now", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -105,7 +109,7 @@ public class SimpleVideoView extends FrameLayout {
             @Override
             public void onClick(View v) {
                 // TODO 全屏未实现
-                Toast.makeText(getContext(),"全屏未实现",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "全屏未实现", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -121,7 +125,7 @@ public class SimpleVideoView extends FrameLayout {
 
     //点击暂停时调用的方法，更新UI
     private void pauseMediaPlayer() {
-        if (mediaPlayer.isPlaying()){
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
         isPlaying = false;
@@ -139,19 +143,83 @@ public class SimpleVideoView extends FrameLayout {
 
 
     //对播放资源进行设置
-    public void setVideoPath(String videoPath){
+    public void setVideoPath(String videoPath) {
         this.videoPath = videoPath;
     }
 
     //生命周期的控制
     // 用来初始状态
-    public void onResume(){
+    public void onResume() {
+        initMediaPlayer();// 初始化MediaPlayer，设置一系列的监听
+        prepareMediaPlater();// 准备MediaPlater，更新UI
+    }
+
+    // 准备MediaPlater，更新UI
+    private void prepareMediaPlater() {
+        try {
+            mediaPlayer.reset();//重置
+            mediaPlayer.setDataSource(videoPath);//设置数据源
+            mediaPlayer.setLooping(true);//循环播放
+            mediaPlayer.prepareAsync();
+            //预览图可见
+            ivPreview.setVisibility(View.VISIBLE);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 初始化MediaPlayer，设置一系列的监听
+    private void initMediaPlayer() {
+        mediaPlayer = new MediaPlayer(getContext());
+        mediaPlayer.setDisplay(surfaceHolder);
+        //准备情况的监听
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                isPrepared = true;
+                startMediaPlater();
+            }
+        });
+        //处理audio监听
+        mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                if (what == MediaPlayer.MEDIA_INFO_FILE_OPEN_OK) {
+                    mediaPlayer.audioInitedOk(mediaPlayer.audioTrackInit());
+                    return true;
+                }
+                return false;
+            }
+        });
+        //设置videosize变化监听
+        mediaPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
+            @Override
+            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+                int layoutWidth = surfaceView.getWidth();
+                int layoutHeight = layoutWidth * height / width;
+                // 更新surfaceView的size
+                ViewGroup.LayoutParams layoutparams = surfaceView.getLayoutParams();
+                layoutparams.width = layoutWidth;
+                layoutparams.height = layoutHeight;
+                surfaceView.setLayoutParams(layoutparams);
+            }
+        });
 
     }
 
     // 用来释放状态
-    public void onPause(){
+    public void onPause() {
+        pauseMediaPlayer(); // 暂停播放，同时更新UI状态
+        releaseMediaPlayer(); // 释放MediaPlayer，同时更新UI状态
+    }
 
+    // 释放MediaPlayer，同时更新UI状态
+    private void releaseMediaPlayer() {
+        mediaPlayer.release();//释放
+        mediaPlayer = null;
+        isPrepared = false;
+        progressBar.setProgress(0);
     }
 
 }
