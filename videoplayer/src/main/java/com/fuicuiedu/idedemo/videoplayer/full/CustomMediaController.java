@@ -3,7 +3,9 @@ package com.fuicuiedu.idedemo.videoplayer.full;
 import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
@@ -66,6 +68,7 @@ public class CustomMediaController extends MediaController {
                 mediaPlayerControl.seekTo(postion);
             }
         });
+
         //rewind快退
         ImageButton btnFastRewind = (ImageButton) view.findViewById(R.id.btnFastRewind);
         btnFastRewind.setOnClickListener(new OnClickListener() {
@@ -81,5 +84,31 @@ public class CustomMediaController extends MediaController {
             }
         });
         // 调整视图（左边调整亮度，右边调整音量）
+        final View adjustView = view.findViewById(R.id.adjustView);
+        // 依赖GestureDetector来进行滑屏调整音量和亮度的手势处理
+        final GestureDetector gestureDetector = new GestureDetector(getContext(),
+                new GestureDetector.SimpleOnGestureListener(){
+                    @Override
+                    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                        float startX = e1.getX();//开始的X轴
+                        float startY = e1.getY();//开始的Y轴
+                        float endX = e2.getX();//结束的X轴
+                        float endY = e2.getY();//结束的Y轴
+                        float width = adjustView.getWidth();//拿到我整个视图的宽
+                        float height = adjustView.getHeight();//视图的高
+                        float percentage = (startY - endY) / height;//高度滑动的百分比
+                        //左侧：亮度
+                        if (startX < width / 5){
+                            //调整亮度
+                            adjustbRrightness(percentage);
+                        }
+                        //右侧：音量
+                        else if(startX > width * 4 / 5){
+                            //调整音量
+                            adjustVolume(percentage);
+                        }
+                        return super.onScroll(e1, e2, distanceX, distanceY);
+                    }
+                });
     }
 }

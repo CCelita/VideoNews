@@ -31,7 +31,7 @@ import io.vov.vitamio.Vitamio;
 public class SimpleVideoView extends FrameLayout {
     private static final int PROGRESS_MAX = 1000;//进度条控制（长短，进度）
 
-    private String videoPath;//视频播放的url\
+    private String videoPath;//视频播放的url
     private Boolean isPlaying;//是否正在播放
     private Boolean isPrepared;//是否准备好
 
