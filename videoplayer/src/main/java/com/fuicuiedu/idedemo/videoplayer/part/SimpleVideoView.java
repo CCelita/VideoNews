@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.fuicuiedu.idedemo.videoplayer.R;
+import com.fuicuiedu.idedemo.videoplayer.full.VideoViewActivity;
 
 import java.io.IOException;
 
@@ -125,7 +126,8 @@ public class SimpleVideoView extends FrameLayout {
         btnFullScreen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO 全屏未实现
+
+                VideoViewActivity.open(getContext(),videoPath);
             }
         });
     }

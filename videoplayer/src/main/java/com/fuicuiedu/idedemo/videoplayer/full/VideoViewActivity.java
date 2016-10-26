@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,6 +38,12 @@ public class VideoViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //取消状态栏
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //设置背景色
+        getWindow().setBackgroundDrawableResource(android.R.color.black);
+
         setContentView(R.layout.activity_video_view);
 
         //缓冲视图，视频视图
@@ -48,12 +55,15 @@ public class VideoViewActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         //videoPath设置给videoview
+        videoView.setVideoPath(getIntent().getStringExtra(KEY_VIDEO_PATH));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         //VideoView释放掉
+        videoView.stopPlayback();
+        //videoview = mediaplayer + surfaceview
     }
 
     //初始化缓冲视图
@@ -119,6 +129,26 @@ public class VideoViewActivity extends AppCompatActivity {
                 updataBufferView();
             }
         });
+    }
+
+    //显示缓冲视图
+    private void showBufferView(){
+        tvBufferInfo.setVisibility(View.VISIBLE);
+        ivLoading.setVisibility(View.VISIBLE);
+        downloadSpeed = 0;
+        bufferPercent = 0;
+    }
+
+    //隐藏缓冲视图
+    private void hideBufferView(){
+        tvBufferInfo.setVisibility(View.INVISIBLE);
+        ivLoading.setVisibility(View.INVISIBLE);
+    }
+
+    //更新缓冲视图
+    private void updataBufferView(){
+        String info = bufferPercent + "%  " + downloadSpeed + "kb/s";
+        tvBufferInfo.setText(info);
     }
 
 }
