@@ -70,7 +70,6 @@ public class SimpleVideoView extends FrameLayout {
         }
     };
 
-    // TODO https://github.com/wxcican/VideoNews.git
     //视图初始化，只在构造方法中调用一次
     private void init() {
         //Vitamio的初始化
@@ -79,6 +78,24 @@ public class SimpleVideoView extends FrameLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_simple_video_player, this, true);
         initSurfaceView(); // 初始化SurfaceView
         initControllerViews(); // 初始化视频播放控制视图
+    }
+
+    //对播放资源进行设置
+    public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
+    }
+
+    //生命周期的控制
+    // 用来初始状态
+    public void onResume() {
+        initMediaPlayer();// 初始化MediaPlayer，设置一系列的监听
+        prepareMediaPlater();// 准备MediaPlater，更新UI
+    }
+
+    // 用来释放状态
+    public void onPause() {
+        pauseMediaPlayer(); // 暂停播放，同时更新UI状态
+        releaseMediaPlayer(); // 释放MediaPlayer，同时更新UI状态
     }
 
     // 初始化视频播放控制视图
@@ -109,7 +126,6 @@ public class SimpleVideoView extends FrameLayout {
             @Override
             public void onClick(View v) {
                 // TODO 全屏未实现
-                Toast.makeText(getContext(), "全屏未实现", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -142,17 +158,6 @@ public class SimpleVideoView extends FrameLayout {
     }
 
 
-    //对播放资源进行设置
-    public void setVideoPath(String videoPath) {
-        this.videoPath = videoPath;
-    }
-
-    //生命周期的控制
-    // 用来初始状态
-    public void onResume() {
-        initMediaPlayer();// 初始化MediaPlayer，设置一系列的监听
-        prepareMediaPlater();// 准备MediaPlater，更新UI
-    }
 
     // 准备MediaPlater，更新UI
     private void prepareMediaPlater() {
@@ -208,11 +213,6 @@ public class SimpleVideoView extends FrameLayout {
 
     }
 
-    // 用来释放状态
-    public void onPause() {
-        pauseMediaPlayer(); // 暂停播放，同时更新UI状态
-        releaseMediaPlayer(); // 释放MediaPlayer，同时更新UI状态
-    }
 
     // 释放MediaPlayer，同时更新UI状态
     private void releaseMediaPlayer() {
