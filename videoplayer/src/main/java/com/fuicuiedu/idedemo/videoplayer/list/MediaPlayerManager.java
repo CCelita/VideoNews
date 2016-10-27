@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.Surface;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class MediaPlayerManager {
     private List<OnPlaybackListener> onPlaybackListenerList;// 接口的集合
     private MediaPlayer mediaPlayer;
     private Context context;
+    private boolean needRelease = false;// 是否需要释放（如果还没有资源的话，release可能报空指针）
 
     //单例
     public static MediaPlayerManager getInstance(Context context){
@@ -65,7 +67,7 @@ public class MediaPlayerManager {
             @Override
             public boolean onInfo(MediaPlayer mp, int what, int extra) {
                 switch (what){
-                    // vitamio做音频初始处理
+                    // vitamio做音频初始处理!!!!
                     case MediaPlayer.MEDIA_INFO_FILE_OPEN_OK:
                         mediaPlayer.audioInitedOk(mediaPlayer.audioTrackInit());
                      return true;
@@ -83,16 +85,86 @@ public class MediaPlayerManager {
         });
 
     };
+
     //释放MediaPlayer
-    public void onPause(){};
+    public void onPause(){
+        stopPlayer();
+        //判断是否需要释放
+        if (needRelease){
+            mediaPlayer.release();
+        }
+        mediaPlayer = null;
+    };
+
     // 开始播放
-    public void startPlayer(@NonNull Surface surface, @NonNull String path, @NonNull String videoId) {};
+    public void startPlayer(@NonNull Surface surface,
+                            @NonNull String path,
+                            @NonNull String videoId) {
+        //判断是否是唯一播放（当前是否有其他视频存在）
+        if (this.videoId !=null){
+            stopPlayer();
+        }
+        //更新一下当前视频ID
+        this.videoId = videoId;
+        //通知UI进行更新
+        for (OnPlaybackListener listener : onPlaybackListenerList){
+            listener.onStartPlay(videoId);
+        }
+        // 准备播放
+        try {
+            mediaPlayer.setDataSource(path);//设置资源
+            needRelease = true;// 需要释放
+            mediaPlayer.setSurface(surface);
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    };
+
     // 停止播放(并且通知更新UI)
-    public void stopPlayer() {};
+    public void stopPlayer() {
+        if (videoId == null){
+            return;
+        }
+        // 通知UI更新
+        for (OnPlaybackListener listener : onPlaybackListenerList){
+            listener.onStopPlay(videoId);
+        }
+        this.videoId = null;
+        if (mediaPlayer.isPlaying()){
+            mediaPlayer.stop();
+        }
+        mediaPlayer.reset();//重置
+    };
     // 添加监听
-    public void addPlayerbackListener(OnPlaybackListener listener) {};
+    public void addPlayerbackListener(OnPlaybackListener listener) {
+        onPlaybackListenerList.add(listener);
+    };
     // 移除监听
-    public void removeAllListeners(){};
+    public void removeAllListeners(){
+        onPlaybackListenerList.clear();
+    };
+
+
+    // 开始缓冲，并且更新UI（通过接口callback）
+    private void startBuffering(){
+        //判断：正在播放的时候要暂停
+        if (mediaPlayer.isPlaying()){
+            mediaPlayer.pause();
+        }
+        for (OnPlaybackListener listener : onPlaybackListenerList){
+            listener.onStartBuffering(videoId);
+        }
+    }
+
+    //结束缓冲，并且更新UI（通过接口callback）
+    private void endBuffering(){
+        mediaPlayer.start();
+        //通知UI更新
+        for (OnPlaybackListener listener : onPlaybackListenerList){
+            listener.onStopBuffering(videoId);
+        }
+    }
 
 
     //视图接口
