@@ -6,108 +6,56 @@ import android.os.Bundle;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fuicuiedu.idedemo.videoplayer.list.MediaPlayerManager;
 import com.fuicuiedu.idedemo.videoplayer.part.SimpleVideoView;
 
-public class TestAcitivity extends AppCompatActivity
-        implements TextureView.SurfaceTextureListener,
-        MediaPlayerManager.OnPlaybackListener{
+import java.util.List;
 
-    private TextureView textureView;
-    private MediaPlayerManager mediaPlayerManager;
-    private Surface surface;
+import butterknife.BindColor;
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
+public class TestAcitivity extends AppCompatActivity{
+
+    @BindViews({R.id.textView,R.id.textView2})
+    List<TextView> tvList;
+    @BindViews({R.id.button,R.id.button2})
+    List<Button> btnList;
+    @BindView(R.id.button)      Button btn;
+    @BindView(R.id.button2)     Button btn2;
+
+    private Unbinder unbinder;
+
+
+    //绑定资源
+    @BindColor(R.color.colorPrimaryDark) int pDark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_acitivity);
 
-        textureView = (TextureView) findViewById(R.id.test_ttv);
-        textureView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 判断surface是否初始化
-                if (surface == null){
-                    return;
-                }
-                String path = VideoUrlRes.getTestVideo1();
-                String videoId = "1";
-                mediaPlayerManager.startPlayer(surface,path,videoId);
-            }
-        });
-        mediaPlayerManager = MediaPlayerManager.getInstance(this);
+        unbinder = ButterKnife.bind(this);
 
-        //监听是否准备好，是否销毁等、、
-        textureView.setSurfaceTextureListener(this);
+        btn.setBackgroundColor(pDark);
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mediaPlayerManager.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mediaPlayerManager.onPause();
+    @OnClick(R.id.button2)
+    public void Click(){
+        Toast.makeText(this,"点击了btn2",Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mediaPlayerManager.removeAllListeners();
+        unbinder.unbind();//解绑！
     }
-
-    //========================SurfaceTextureListener  start==================
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        //surface初始化
-        this.surface = new Surface(surface);
-    }
-
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        this.surface.release();
-        this.surface=null;
-        mediaPlayerManager.stopPlayer();
-        return false;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-    }
-    //========================SurfaceTextureListener  end==================
-
-    //=====================OnPlaybackListener start================
-    @Override
-    public void onStartBuffering(String videoId) {
-
-    }
-
-    @Override
-    public void onStopBuffering(String videoId) {
-
-    }
-
-    @Override
-    public void onStartPlay(String videoId) {
-
-    }
-
-    @Override
-    public void onStopPlay(String videoId) {
-
-    }
-
-    @Override
-    public void onSizeMeasured(String videoId, int width, int height) {
-
-    }
-    //=====================OnPlaybackListener end================
 }
