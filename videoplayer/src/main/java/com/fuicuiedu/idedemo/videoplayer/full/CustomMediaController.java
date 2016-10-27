@@ -97,12 +97,12 @@ public class CustomMediaController extends MediaController {
                         float width = adjustView.getWidth();//拿到我整个视图的宽
                         float height = adjustView.getHeight();//视图的高
                         float percentage = (startY - endY) / height;//高度滑动的百分比
-                        //左侧：亮度
+                        //左侧(视图的1/5)：亮度
                         if (startX < width / 5){
                             //调整亮度
                             adjustbRrightness(percentage);
                         }
-                        //右侧：音量
+                        //右侧(视图的1/5)：音量
                         else if(startX > width * 4 / 5){
                             //调整音量
                             adjustVolume(percentage);
@@ -110,5 +110,24 @@ public class CustomMediaController extends MediaController {
                         return super.onScroll(e1, e2, distanceX, distanceY);
                     }
                 });
+        //对view进行touch监听
+        //但是我们不去做touch事件的处理，交给GestureDetector处理
+        adjustView.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //判断用户的操作是不是一个摁下的操作
+                if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN){
+                    //当前音量
+                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    //当前亮度
+                    currentBrightness = window.getAttributes().screenBrightness;
+                }
+                //传给gD用户初始操作，后续gD自行处理
+                gestureDetector.onTouchEvent(event);
+                // 在调整的过程中，一直显示
+                show();
+                return true;
+            }
+        });
     }
 }
