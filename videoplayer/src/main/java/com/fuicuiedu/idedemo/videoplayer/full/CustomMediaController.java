@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 
 import com.fuicuiedu.idedemo.videoplayer.R;
@@ -129,5 +130,36 @@ public class CustomMediaController extends MediaController {
                 return true;
             }
         });
+    }
+
+    //调整亮度
+    private void adjustbRrightness(float percentage){
+        //最终亮度 = 0.? + 当前亮度0.？
+//        亮度增加    0.7       =     0.2    +    0.5
+//        亮度减少    0.3         =    -0.2    +    0.5
+        float brightness = percentage + currentBrightness;
+        //最终亮度是否大于最大亮度
+        brightness = brightness > 1.0f ? 1.0f : brightness;
+        //最终亮度是否小于最小亮度
+        brightness = brightness < 0 ? 0 : brightness;
+        //设置亮度
+        WindowManager.LayoutParams layoutParams = window.getAttributes();
+        layoutParams.screenBrightness = brightness;
+        window.setAttributes(layoutParams);
+    }
+
+    //调整音量
+    private void adjustVolume(float percentage){
+        //最终音量 = 最大音量*百分比 + 当前音量
+//       音量增大   35       =   100*15%      +   20
+//       音量减小   5        =   100*-15%     +   20
+        int volume = (int) ((maxVolume * percentage) + currentVolume);
+        //最终音量是否大于最大音量
+        volume = volume > maxVolume ? maxVolume : volume;
+        //最终音量是否小于最小音量
+        volume = volume < 0 ? 0 : volume;
+        //设置音量
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,volume,
+                audioManager.FLAG_SHOW_UI);
     }
 }
