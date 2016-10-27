@@ -25,27 +25,27 @@ public class MediaPlayerManager {
     private boolean needRelease = false;// 是否需要释放（如果还没有资源的话，release可能报空指针）
 
     //单例
-    public static MediaPlayerManager getInstance(Context context){
-        if (mediaPlayerManager == null){
+    public static MediaPlayerManager getInstance(Context context) {
+        if (mediaPlayerManager == null) {
             mediaPlayerManager = new MediaPlayerManager(context);
         }
         return mediaPlayerManager;
     }
 
-    private MediaPlayerManager(Context context){
+    private MediaPlayerManager(Context context) {
         this.context = context;//拿到上下文对象，实例化MediaPlayer
         Vitamio.isInitialized(context);//vitamio初始化
         onPlaybackListenerList = new ArrayList<>();// 初始化接口
     }
 
     // 获取videoId
-    public String getVideoId(){
+    public String getVideoId() {
         return videoId;
     }
 
     //生命周期控制
     //初始化MediaPlayer
-    public void onResume(){
+    public void onResume() {
         mediaPlayer = new MediaPlayer(context);//实例化
         // 监听Prepared - 设置缓冲空间大小
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -62,52 +62,62 @@ public class MediaPlayerManager {
                 stopPlayer();
             }
         });
+        // 监听VideoSizeChanged - 更新UI
+        mediaPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
+            @Override
+            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+                if (width == 0 || height == 0) {
+                    return;
+                }
+                changeVideoSize(width, height);
+            }
+        });
         // 监听Info - 缓冲状态处理并且更新UI
         mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                switch (what){
+                switch (what) {
                     // vitamio做音频初始处理!!!!
                     case MediaPlayer.MEDIA_INFO_FILE_OPEN_OK:
                         mediaPlayer.audioInitedOk(mediaPlayer.audioTrackInit());
-                     return true;
+                        return true;
                     // 缓冲开始
                     case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                         startBuffering();
-                     return true;
+                        return true;
                     // 缓冲结束
                     case MediaPlayer.MEDIA_INFO_BUFFERING_END:
                         endBuffering();
-                     return true;
+                        return true;
                 }
                 return false;
             }
         });
 
-    };
+    }
 
     //释放MediaPlayer
-    public void onPause(){
+    public void onPause() {
         stopPlayer();
         //判断是否需要释放
-        if (needRelease){
+        if (needRelease) {
             mediaPlayer.release();
         }
         mediaPlayer = null;
-    };
+    }
 
     // 开始播放
     public void startPlayer(@NonNull Surface surface,
                             @NonNull String path,
                             @NonNull String videoId) {
         //判断是否是唯一播放（当前是否有其他视频存在）
-        if (this.videoId !=null){
+        if (this.videoId != null) {
             stopPlayer();
         }
         //更新一下当前视频ID
         this.videoId = videoId;
         //通知UI进行更新
-        for (OnPlaybackListener listener : onPlaybackListenerList){
+        for (OnPlaybackListener listener : onPlaybackListenerList) {
             listener.onStartPlay(videoId);
         }
         // 准备播放
@@ -119,66 +129,78 @@ public class MediaPlayerManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    };
+    }
 
     // 停止播放(并且通知更新UI)
     public void stopPlayer() {
-        if (videoId == null){
+        if (videoId == null) {
             return;
         }
         // 通知UI更新
-        for (OnPlaybackListener listener : onPlaybackListenerList){
+        for (OnPlaybackListener listener : onPlaybackListenerList) {
             listener.onStopPlay(videoId);
         }
         this.videoId = null;
-        if (mediaPlayer.isPlaying()){
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
         mediaPlayer.reset();//重置
-    };
+    }
+
     // 添加监听
     public void addPlayerbackListener(OnPlaybackListener listener) {
         onPlaybackListenerList.add(listener);
-    };
-    // 移除监听
-    public void removeAllListeners(){
-        onPlaybackListenerList.clear();
-    };
+    }
 
+    // 移除监听
+    public void removeAllListeners() {
+        onPlaybackListenerList.clear();
+    }
 
     // 开始缓冲，并且更新UI（通过接口callback）
-    private void startBuffering(){
+    private void startBuffering() {
         //判断：正在播放的时候要暂停
-        if (mediaPlayer.isPlaying()){
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
-        for (OnPlaybackListener listener : onPlaybackListenerList){
+        for (OnPlaybackListener listener : onPlaybackListenerList) {
             listener.onStartBuffering(videoId);
         }
     }
 
     //结束缓冲，并且更新UI（通过接口callback）
-    private void endBuffering(){
+    private void endBuffering() {
         mediaPlayer.start();
         //通知UI更新
-        for (OnPlaybackListener listener : onPlaybackListenerList){
+        for (OnPlaybackListener listener : onPlaybackListenerList) {
             listener.onStopBuffering(videoId);
         }
     }
 
+    //调整更改视频尺寸
+    private void changeVideoSize(final int width, final int height) {
+        //通知ui更新
+        for (OnPlaybackListener listener : onPlaybackListenerList) {
+            listener.onSizeMeasured(videoId, width, height);
+        }
+    }
 
     //视图接口
     //在视频播放模块完成播放的一些处理，视图层（app模块）实现这些接口，完成视图层UI更新
-    public interface OnPlaybackListener{
+    public interface OnPlaybackListener {
         //视频缓冲开始
         void onStartBuffering(String videoId);
+
         //视频缓冲结束
         void onStopBuffering(String videoId);
+
         //开始播放
         void onStartPlay(String videoId);
+
         //停止播放
         void onStopPlay(String videoId);
+
         //大小更改
-        void onSizeMeasured(String videoId,int width,int height);
+        void onSizeMeasured(String videoId, int width, int height);
     }
 }
