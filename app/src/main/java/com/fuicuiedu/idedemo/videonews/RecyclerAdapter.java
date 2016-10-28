@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     private List<String> mDatas;
     private Context context;
     private LayoutInflater inflater;//填充器，用来填充布局
+    private OnItemClickListener onItemClickListener;
 
     public RecyclerAdapter(Context context,List<String> mDatas){
         this.context = context;
@@ -38,8 +40,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(MyViewHolder holder, final int position) {
         holder.mTv.setText(mDatas.get(position));
+
+        if (onItemClickListener != null){
+            //点击监听
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onClick(position);
+                }
+            });
+            //长按监听
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onItemClickListener.onLongClick(position);
+                    return false;
+                }
+            });
+        }
     }
 
     @Override
@@ -59,4 +79,28 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         }
     }
 
+    //添加数据
+    public void addData(int position){
+        mDatas.add(position,"Insert One");
+        notifyItemChanged(position);
+        notifyItemRangeChanged(position,mDatas.size());//批量更新
+    }
+    //删除数据
+    public void removeData(int position){
+        mDatas.remove(position);
+        notifyItemChanged(position);
+        notifyItemRangeChanged(position,mDatas.size());//批量更新
+    }
+
+    //添加点击事件监听
+    public interface OnItemClickListener{
+        //点击
+        void onClick(int position);
+        //长按
+        void onLongClick(int position);
+    }
+
+    public void setOnItemCikckListener(OnItemClickListener onItemClickListener){
+        this.onItemClickListener = onItemClickListener;
+    }
 }

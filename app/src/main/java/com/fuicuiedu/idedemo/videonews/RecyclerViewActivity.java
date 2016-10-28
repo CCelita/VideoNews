@@ -9,6 +9,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
 
+import com.fuicuiedu.idedemo.videonews.commons.ToastUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,19 +44,33 @@ public class RecyclerViewActivity extends AppCompatActivity {
         //初始化适配器
         recyclerAdapter = new RecyclerAdapter(getApplicationContext(),mData);
 
+        //设置item监听
+        recyclerAdapter.setOnItemCikckListener(new RecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(int position) {
+                ToastUtils.showShort("点击了==" + position + "==item");
+            }
+
+            @Override
+            public void onLongClick(int position) {
+                ToastUtils.showShort("长按了==" + position + "==item");
+            }
+        });
+
         //设置布局
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        layoutManager.setOrientation(OrientationHelper.VERTICAL);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(OrientationHelper.VERTICAL);
 //        layoutManager.setOrientation(OrientationHelper.HORIZONTAL);
-        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
+//        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
         recyclerView.setLayoutManager(layoutManager);
         //设置adapter
         recyclerView.setAdapter(recyclerAdapter);
         //设置分割线
-//        recyclerView.addItemDecoration(new AAADivider(this,OrientationHelper.HORIZONTAL));
+        recyclerView.addItemDecoration(new AAADivider(this,OrientationHelper.VERTICAL));
         //设置item动画
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         //点击事件接口实现（两个）
+
 
     }
 
@@ -67,11 +83,11 @@ public class RecyclerViewActivity extends AppCompatActivity {
     //添加item
     @OnClick(R.id.recycle_add)
     public void add(){
-
+        recyclerAdapter.addData(1);
     }
     //删除item
     @OnClick(R.id.recycle_delete)
     public void delete(){
-
+        recyclerAdapter.removeData(1);
     }
 }
