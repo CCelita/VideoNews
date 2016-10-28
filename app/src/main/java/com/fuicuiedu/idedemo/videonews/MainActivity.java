@@ -1,5 +1,6 @@
 package com.fuicuiedu.idedemo.videonews;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 
 import com.fuicuiedu.idedemo.videonews.commons.ToastUtils;
+import com.fuicuiedu.idedemo.videonews.ui.likes.LikesFragment;
 import com.fuicuiedu.idedemo.videonews.ui.local.LocalVideoFragment;
 import com.fuicuiedu.idedemo.videonews.ui.news.NewsFragment;
 
@@ -29,13 +31,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             switch (position){
                 case 0:
 //                    return new NewsFragment();
+                    Intent intent = new Intent(getApplicationContext(),TestAcitivity.class);
+                    startActivity(intent);
                     return new Fragment();
                 case 1:
 //                    return new LocalVideoFragment();
                     return new Fragment();
                 case 2:
-//                    return new LikesFragment();
-                    return new Fragment();
+                    return new LikesFragment();
+//                    return new Fragment();
                 default:
                     throw new RuntimeException("未知");
             }
@@ -79,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 viewPager.setCurrentItem(1,false);
                 break;
             case R.id.btnLikes:
-                ToastUtils.showShort("我的收藏，未实现");
                 viewPager.setCurrentItem(2,false);
                 break;
             default:

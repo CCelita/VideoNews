@@ -16,7 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestAcitivity"></activity>
+        <activity android:name=".TestAcitivity"/>
+        <activity android:name=".RecyclerViewActivity"/>
     </application>
 
 </manifest>

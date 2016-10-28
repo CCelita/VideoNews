@@ -1,6 +1,7 @@
 package com.fuicuiedu.idedemo.videonews;
 
 import android.graphics.SurfaceTexture;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Surface;
@@ -33,6 +34,12 @@ public class TestAcitivity extends AppCompatActivity{
 
     private Unbinder unbinder;
 
+    static final ButterKnife.Action<TextView> HEHE = new ButterKnife.Action<TextView>() {
+        @Override
+        public void apply(@NonNull TextView view, int index) {
+            view.setText("233333");
+        }
+    };
 
     //绑定资源
     @BindColor(R.color.colorPrimaryDark) int pDark;
@@ -45,6 +52,10 @@ public class TestAcitivity extends AppCompatActivity{
         unbinder = ButterKnife.bind(this);
 
         btn.setBackgroundColor(pDark);
+
+        ButterKnife.apply(tvList,HEHE);
+
+        ButterKnife.apply(btnList,View.ALPHA,0.0f);
 
     }
 
