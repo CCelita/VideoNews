@@ -67,4 +67,16 @@
             android:visibility="invisible"/>
     </RelativeLayout>
 
+    <EditText
+        android:id="@+id/likes_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <EditText
+        android:id="@+id/likes_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
 </LinearLayout>

@@ -38,6 +38,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     //-------拦截器
     compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
-    //-------gson转换器
+    //-------gson转换器(实体类转化成json)
     compile 'com.google.code.gson:gson:2.8.0'
 }

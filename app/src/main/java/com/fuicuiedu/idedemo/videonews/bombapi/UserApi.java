@@ -1,5 +1,7 @@
 package com.fuicuiedu.idedemo.videonews.bombapi;
 
+import com.fuicuiedu.idedemo.videonews.bombapi.entity.UserEntity;
+
 import okhttp3.Call;
 
 /**
@@ -11,7 +13,7 @@ public interface UserApi {
     //登录
     Call Login();
     //注册
-    Call Register();
+    Call Register(UserEntity userEntity);
 
 
 }

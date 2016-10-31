@@ -8,9 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.fuicuiedu.idedemo.videonews.R;
 import com.fuicuiedu.idedemo.videonews.bombapi.BombClient;
+import com.fuicuiedu.idedemo.videonews.bombapi.entity.UserEntity;
 import com.fuicuiedu.idedemo.videonews.commons.ToastUtils;
 
 
@@ -35,6 +37,11 @@ public class LikesFragment extends Fragment {
     @BindView(R.id.btnLogin)
     Button btnLogin;
 
+    @BindView(R.id.likes_username)
+    EditText mName;
+    @BindView(R.id.likes_password)
+    EditText mPass;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,30 +61,29 @@ public class LikesFragment extends Fragment {
     //注册
     @OnClick(R.id.btnRegister)
     public void register(){
-        ToastUtils.showShort("注册");
 
+        String username = mName.getText().toString();
+        String password = mPass.getText().toString();
+
+        UserEntity userEntity = new UserEntity(username,password);
+
+        Call call = BombClient.getInstance().Register(userEntity);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("aaa","创建成功");
+            }
+        });
     }
 
     //登录
     @OnClick(R.id.btnLogin)
     public void login(){
-//        ToastUtils.showShort("登录");
-
-        Call call = BombClient.getInstance().Login();
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-            Log.e("aaa","错了");
-        }
-
-        @Override
-        public void onResponse(Call call, Response response) throws IOException {
-            //是否成功
-            if (response.isSuccessful()){
-                Log.e("aaa","成功了");
-            }
-        }
-    });
+        ToastUtils.showShort("注册");
     }
-
 }
