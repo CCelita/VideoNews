@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             switch (position){
                 case 0:
 //                    return new NewsFragment();
-                    Intent intent = new Intent(getApplicationContext(),RecyclerViewActivity.class);
-                    startActivity(intent);
                     return new Fragment();
                 case 1:
 //                    return new LocalVideoFragment();

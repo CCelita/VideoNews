@@ -3,18 +3,25 @@ package com.fuicuiedu.idedemo.videonews.ui.likes;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.fuicuiedu.idedemo.videonews.R;
+import com.fuicuiedu.idedemo.videonews.bombapi.BombClient;
 import com.fuicuiedu.idedemo.videonews.commons.ToastUtils;
+
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * Created by Administrator on 2016/10/28 0028.
@@ -48,11 +55,29 @@ public class LikesFragment extends Fragment {
     @OnClick(R.id.btnRegister)
     public void register(){
         ToastUtils.showShort("注册");
+
     }
 
     //登录
     @OnClick(R.id.btnLogin)
     public void login(){
-        ToastUtils.showShort("登录");
+//        ToastUtils.showShort("登录");
+
+        Call call = BombClient.getInstance().Login();
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            Log.e("aaa","错了");
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            //是否成功
+            if (response.isSuccessful()){
+                Log.e("aaa","成功了");
+            }
+        }
+    });
     }
+
 }

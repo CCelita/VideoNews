@@ -23,13 +23,6 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewPager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/buttonBar"
-        android:layout_below="@+id/toolbar"/>
-
     <LinearLayout
         android:id="@+id/buttonBar"
         android:layout_width="match_parent"
@@ -84,4 +77,12 @@
             android:textColor="@color/color_selector_accent"
             android:textSize="@dimen/font_10"/>
     </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
