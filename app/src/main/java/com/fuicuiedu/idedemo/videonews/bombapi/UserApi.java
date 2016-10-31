@@ -11,7 +11,7 @@ import okhttp3.Call;
 public interface UserApi {
 
     //登录
-    Call Login();
+    Call Login(String username,String password);
     //注册
     Call Register(UserEntity userEntity);
 

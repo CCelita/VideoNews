@@ -84,6 +84,20 @@ public class LikesFragment extends Fragment {
     //登录
     @OnClick(R.id.btnLogin)
     public void login(){
-        ToastUtils.showShort("注册");
+        String username = mName.getText().toString();
+        String password = mPass.getText().toString();
+
+        Call call = BombClient.getInstance().Login(username,password);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+            }
+        });
     }
 }

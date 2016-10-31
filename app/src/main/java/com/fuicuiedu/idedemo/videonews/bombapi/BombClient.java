@@ -46,9 +46,11 @@ public class BombClient implements UserApi{
     }
 
     @Override
-    public Call Login() {
+    public Call Login(String username,String password) {
         Request request = new Request.Builder()
-                .url("https://github.com/wxcican")
+                .url("https://api.bmob.cn/1/login" +
+                        "?username=" + username +
+                        "&password=" + password)
                 .build();
         return okHttpClient.newCall(request);
     }
