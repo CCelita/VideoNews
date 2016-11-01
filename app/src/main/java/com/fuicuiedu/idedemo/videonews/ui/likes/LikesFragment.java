@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.fuicuiedu.idedemo.videonews.R;
 import com.fuicuiedu.idedemo.videonews.bombapi.BombClient;
 import com.fuicuiedu.idedemo.videonews.bombapi.entity.UserEntity;
+import com.fuicuiedu.idedemo.videonews.bombapi.result.UserResult;
 import com.fuicuiedu.idedemo.videonews.commons.ToastUtils;
 
 
@@ -45,9 +46,9 @@ public class LikesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (view == null){
-            view = inflater.inflate(R.layout.fragment_likes,container,false);
-            ButterKnife.bind(this,view);
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_likes, container, false);
+            ButterKnife.bind(this, view);
         }
         return view;
     }
@@ -60,12 +61,12 @@ public class LikesFragment extends Fragment {
 
     //注册
     @OnClick(R.id.btnRegister)
-    public void register(){
+    public void register() {
 
         String username = mName.getText().toString();
         String password = mPass.getText().toString();
 
-        UserEntity userEntity = new UserEntity(username,password);
+        UserEntity userEntity = new UserEntity(username, password);
 
         Call call = BombClient.getInstance().Register(userEntity);
         call.enqueue(new Callback() {
@@ -76,18 +77,19 @@ public class LikesFragment extends Fragment {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.e("aaa","创建成功");
+
             }
         });
     }
 
     //登录
     @OnClick(R.id.btnLogin)
-    public void login(){
+    public void login() {
         String username = mName.getText().toString();
         String password = mPass.getText().toString();
 
-        Call call = BombClient.getInstance().Login(username,password);
+
+        Call call = BombClient.getInstance().Login(username, password);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
