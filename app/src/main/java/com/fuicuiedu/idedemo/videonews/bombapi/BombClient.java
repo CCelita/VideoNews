@@ -14,12 +14,13 @@ import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okio.BufferedSink;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Administrator on 2016/10/31 0031.
  */
 
-public class BombClient implements UserApi {
+public class BombClient {
     private static BombClient bombClient;
 
     public static BombClient getInstance() {
@@ -32,6 +33,7 @@ public class BombClient implements UserApi {
     private OkHttpClient okHttpClient;
     private Gson gson;
     private Retrofit retrofit;
+    private UserApi userApi;
 
     private BombClient() {
         gson = new Gson();
@@ -49,31 +51,16 @@ public class BombClient implements UserApi {
         retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl("https://api.bmob.cn/")
+                //添加转换器（Gson）
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
-
-        //生成UserApi接口实现
-        UserApi userApi = retrofit.create(UserApi.class);
     }
 
 
-    @Override
-    public Call Login(String username, String password) {
-        Request request = new Request.Builder()
-                .url("https://api.bmob.cn/1/login")
-                .build();
-
-        return okHttpClient.newCall(request);
+    public UserApi getUserApi(){
+        if (userApi == null){
+            userApi = retrofit.create(UserApi.class);
+        }
+        return userApi;
     }
-
-    @Override
-    public Call Register(UserEntity userEntity) {
-        Request request = new Request.Builder()
-                .post(RequestBody.create(null, gson.toJson(userEntity)))
-                .url("https://api.bmob.cn/1/users")
-                .build();
-        return okHttpClient.newCall(request);
-    }
-
-
-
 }

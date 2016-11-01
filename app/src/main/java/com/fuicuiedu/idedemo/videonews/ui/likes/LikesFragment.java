@@ -22,9 +22,9 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Administrator on 2016/10/28 0028.
@@ -62,24 +62,26 @@ public class LikesFragment extends Fragment {
     //注册
     @OnClick(R.id.btnRegister)
     public void register() {
-
         String username = mName.getText().toString();
         String password = mPass.getText().toString();
-
         UserEntity userEntity = new UserEntity(username, password);
 
-        Call call = BombClient.getInstance().Register(userEntity);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
 
-            }
+        Call<UserResult> call = BombClient.getInstance().getUserApi().Register(userEntity);
+        call.enqueue(new Callback<UserResult>() {
+            @Override
+            public void onResponse(Call<UserResult> call, Response<UserResult> response) {
+                if (response.isSuccessful()){
+                    UserResult result = response.body();
+                    Log.e("aaa","sessionToken = " + result.getSessionToken());
+            }}
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onFailure(Call<UserResult> call, Throwable t) {
 
             }
         });
+
     }
 
     //登录
@@ -88,16 +90,18 @@ public class LikesFragment extends Fragment {
         String username = mName.getText().toString();
         String password = mPass.getText().toString();
 
-
-        Call call = BombClient.getInstance().Login(username, password);
-        call.enqueue(new Callback() {
+        Call<UserResult> call = BombClient.getInstance().getUserApi().Login(username,password);
+        call.enqueue(new Callback<UserResult>() {
             @Override
-            public void onFailure(Call call, IOException e) {
-
+            public void onResponse(Call<UserResult> call, Response<UserResult> response) {
+                if (response.isSuccessful()){
+                    UserResult userResult = response.body();
+                    Log.e("bbb","token = " + userResult.getSessionToken());
+                }
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onFailure(Call<UserResult> call, Throwable t) {
 
             }
         });
